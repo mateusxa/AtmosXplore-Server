@@ -1,4 +1,3 @@
-import { mysqlConnection } from './mysql_config.js';
 import express from 'express'
 import bodyparser from 'body-parser'
 
