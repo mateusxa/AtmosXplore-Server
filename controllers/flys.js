@@ -46,10 +46,10 @@ export const createFly = async (req, res) => {
             element['Pressure'],
             element['Height'],
             element['Luminosity'],
-            element['Date']
+            element['Duration']
         ]
 
-        mysqlConnection.query('INSERT INTO Flys (Fly, Temperature, Humidity, Pressure, Height, Luminosity, Date) VALUES (?, ?, ?, ?, ?, ?, ?) ',
+        mysqlConnection.query('INSERT INTO Flys (Fly, Temperature, Humidity, Pressure, Height, Luminosity, Duration) VALUES (?, ?, ?, ?, ?, ?, ?) ',
         data,
         (err) => {
             if(err) res.json(err)
@@ -57,4 +57,15 @@ export const createFly = async (req, res) => {
     })
 
     res.send('ok')
+}
+
+export const getFlysNumber = (req, res) => {
+    mysqlConnection.query('SELECT Fly FROM Flys GROUP BY Fly',
+    (err, rows, fields)=>{
+        if(!err){
+            res.send(rows)
+        } else {
+            console.log(err)
+        }
+    })
 }
