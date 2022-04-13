@@ -21,17 +21,6 @@ app.use(function(req, res, next) {
 
 app.use('/flys', flys)
 
-app.get('/teste/number', (req, res) => {
-    mysqlConnection.query('SELECT Fly FROM Flys GROUP BY Fly',
-    (err, rows, fields)=>{
-        if(!err){
-            res.send(rows)
-        } else {
-            console.log(err)
-        }
-    })
-})
-
 app.listen(PORT, () => {
     console.log(`Express server running on port: ${PORT}`)
 })

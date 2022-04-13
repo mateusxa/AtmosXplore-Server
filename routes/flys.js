@@ -6,10 +6,9 @@ import { getFlys, getSingleFly,
 
 const router = express.Router()
 
+router.get('/number', getFlysNumber)
 router.get('/', getFlys)
 router.get('/:fly_id', getSingleFly)
-router.get('/number', getFlysNumber)
-router.delete('/:fly_id', deleteSingleFly)
 router.post('/deploy', createFly)
 
 export default router
