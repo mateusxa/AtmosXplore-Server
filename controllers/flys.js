@@ -1,71 +1,79 @@
-import { mysqlConnection } from '../mysql_config.js';
+//import { mysqlConnection } from '../ignore/mysql_config.js';
+import Flys from '../models/Flys.js'
 
-export const getFlys = (req, res)=>{
-    mysqlConnection.query('SELECT * FROM Flys', 
-    (err, rows, fields)=>{
-        if(!err){
-            res.send(rows)
-        } else {
-            console.log(err)
-        }
-    })
+export const getFlys = async (req, res) => {
+    try {
+        const allFlys =  await Flys.find()
+
+        res.status(200).json(allFlys)
+    } catch (error){
+        res.status(404).json({ message: error.message })
+    }
 }
 
-export const getSingleFly = (req, res) => {
-    mysqlConnection.query('SELECT * FROM Flys WHERE Fly = ?', [req.params.fly_id], 
-    (err, rows, fields)=>{
-        if(!err){
-            res.send(rows)
-        } else {
-            console.log(err)
-        }
-    })
+export const getSingleFly = async (req, res) => {   
+    try {
+        const allFlys =  await Flys.find({ Fly: req.params.fly_id })
+
+        res.status(200).json(allFlys)
+    } catch (error){
+        res.status(404).json({ message: error.message })
+    }
 }
 
-export const deleteSingleFly = (req, res) => {
-    mysqlConnection.query('DELETE * FROM Flys WHERE Fly = ?', [req.params.fly_id], 
-    (err, rows, fields)=>{
-        if(!err){
-            res.send('Deleted successfully')
-        } else {
-            console.log(err)
-        }
-    })
-}
-
-export const createFly = async (req, res) => {
+export const createFly = (req, res) => {
     
     let flys = req.body
 
-    flys.map(element => {
-
-        let data = [
-            element['Fly'],
-            element['Temperature'],
-            element['Humidity'],
-            element['Pressure'],
-            element['Height'],
-            element['Luminosity'],
-            element['Duration']
-        ]
-
-        mysqlConnection.query('INSERT INTO Flys (Fly, Temperature, Humidity, Pressure, Height, Luminosity, Duration) VALUES (?, ?, ?, ?, ?, ?, ?) ',
-        data,
-        (err) => {
-            if(err) res.json(err)
+    flys.map(async element => {
+        var FlysDetails = new Flys({
+            Fly: element['Fly'],
+            Temperature: element['Temperature'],
+            Humidity: element['Humidity'],
+            Pressure: element['Pressure'],
+            Height: element['Height'],
+            Luminosity: element['Luminosity'],
+            Duration: element['Duration']
         })
-    })
-
-    res.send('ok')
-}
-
-export const getFlysNumber = (req, res) => {
-    mysqlConnection.query('SELECT Fly FROM Flys GROUP BY Fly',
-    (err, rows, fields)=>{
-        if(!err){
-            res.send(rows)
-        } else {
-            console.log(err)
+        
+        try {
+            await FlysDetails.save((err, doc) => {
+                if (err) console.log('Error during record insertion : ' + err);
+            })
+        } catch (error){
+            res.status(404).json({ message: error.message })
         }
     })
+
+    res.status(200).json(`Added ${flys.length} data from flight ${flys[0]['Fly']}`)
 }
+
+
+export const deleteFly = async (req, res) => {
+    try {
+        await Flys.deleteMany({ Fly: req.params.fly_id })
+
+        res.status(200).json(`Deleted all data from flight ${req.params.fly_id }`)
+    } catch (error){
+        res.status(404).json({ message: error.message })
+    }
+}
+
+
+export const getFlysNumber = async(req, res) => {
+    try {
+        const allFlys =  await Flys.aggregate([
+            {
+              "$group": {
+                "_id": "$Fly" 
+
+              }
+            }
+          ])
+
+        res.status(200).json(allFlys)
+    } catch (error){
+        res.status(404).json({ message: error.message })
+    }
+}
+
